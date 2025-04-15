@@ -93,11 +93,120 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="a"><a href="#a" class="headerlink" title="a"></a>a</h1><h1 id="b"><a href="#b" class="headerlink" title="b"></a>b</h1><h1 id="c"><a href="#c" class="headerlink" title="c"></a>c</h1>
+        <p>cpp智能指针是基于RAII思想设计的用于自动释放所指向对象的指针，以更容易更安全进行动态内存管理</p>
+<h2 id="1-std-unique-ptr"><a href="#1-std-unique-ptr" class="headerlink" title="1. std::unique_ptr"></a>1. std::unique_ptr</h2><p><strong>“独占”所指向的对象。</strong></p>
+<ul>
+<li><p>不能拷贝和赋值，对应拷贝构造函数和赋值运算符函数已定义删除。</p>
+</li>
+<li><p>使用<code> std::make_unique</code> 创建（更加安全），使用<code> release()</code>方法释放所有权，返回raw pointer。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">unique_ptr&lt;<span class="type">int</span>&gt; p1 = <span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">1</span>);</span><br><span class="line"><span class="type">int</span>* a = p<span class="number">1.</span><span class="built_in">release</span>();</span><br><span class="line">std::cout&lt;&lt;*a&lt;&lt;std::endl;<span class="comment">// 1</span></span><br><span class="line"><span class="keyword">delete</span> a; <span class="comment">// 需要手动删除</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用<code> reset()</code>方法重置所有权，释放所有权，指向空指针。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unique_ptr&lt;<span class="type">int</span>&gt; p1 = <span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">1</span>);</span><br><span class="line">p<span class="number">1.</span><span class="built_in">reset</span>();</span><br><span class="line">std::cout&lt;&lt;p<span class="number">1.</span><span class="built_in">get</span>()&lt;&lt;std::endl; <span class="comment">// 0</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>如何转移控制权？</strong></p>
+<p>使用<code>std::move()</code>将一个<code>unique_ptr</code>转移给另一个<code>unique_ptr</code>或者<code>shares_ptr</code>。原指针变为空指针。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">std::unique_ptr&lt;<span class="type">int</span>&gt; p1 = std::<span class="built_in">make_unique</span>&lt;<span class="type">int</span>&gt;(<span class="number">0</span>);</span><br><span class="line">std::unique_ptr&lt;<span class="type">int</span>&gt; p2 = std::<span class="built_in">move</span>(p1); <span class="comment">//p1 is nullptr</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-std-shared-ptr"><a href="#2-std-shared-ptr" class="headerlink" title="2. std::shared_ptr"></a>2. std::shared_ptr</h2><p><strong>可以共享对象，同时能记录有多少对象共享它管理的内存对象，当最后一个<code>std::shared_ptr</code>被销毁时，会自动释放所管理的对象。</strong></p>
+<ul>
+<li><p>底层原理：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">element_type*	   _M_ptr;         <span class="comment">// Contained pointer.</span></span><br><span class="line">__shared_count&lt;_Lp&gt;  _M_refcount;    <span class="comment">// Reference counter.</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://files.mdnice.com/user/15348/7dcf8260-9a67-4f7b-84e8-f8928da071e2.png" alt="img"></p>
+</li>
+</ul>
+<p>​	<strong>sizeof(std::shared_ptr<int>) &#x3D; 2 * sizeof(std::unique_ptr<int>)</strong></p>
+<ul>
+<li><p>简单实现</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">shared_ptr</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"><span class="comment">// constructor</span></span><br><span class="line"><span class="built_in">shared_ptr</span>(T* ptr = <span class="literal">nullptr</span>) : <span class="built_in">m_ptr</span>(ptr), <span class="built_in">m_refCount</span>(<span class="keyword">new</span> <span class="built_in">int</span>(<span class="number">1</span>)) &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// copy constructor</span></span><br><span class="line"><span class="built_in">shared_ptr</span>(<span class="type">const</span> shared_ptr&amp; other) : <span class="built_in">m_ptr</span>(other.m_ptr), <span class="built_in">m_refCount</span>(other.m_refCount) &#123;</span><br><span class="line">    <span class="comment">// increase the reference count</span></span><br><span class="line">    (*m_refCount)++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// destructor</span></span><br><span class="line">~<span class="built_in">shared_ptr</span>() &#123;</span><br><span class="line">    <span class="comment">// decrease the reference count</span></span><br><span class="line">    (*m_refCount)--;</span><br><span class="line">    <span class="comment">// if the reference count is zero, delete the pointer</span></span><br><span class="line">    <span class="keyword">if</span> (*m_refCount == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">delete</span> m_ptr;</span><br><span class="line">        <span class="keyword">delete</span> m_refCount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// overload operator=()</span></span><br><span class="line">shared_ptr&amp; <span class="keyword">operator</span>=(<span class="type">const</span> shared_ptr&amp; other) &#123;</span><br><span class="line">    <span class="comment">// check self-assignment</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span> != &amp;other) &#123;</span><br><span class="line">        <span class="comment">// decrease the reference count for the old pointer</span></span><br><span class="line">        (*m_refCount)--;</span><br><span class="line">        <span class="comment">// if the reference count is zero, delete the pointer</span></span><br><span class="line">        <span class="keyword">if</span> (*m_refCount == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">delete</span> m_ptr;</span><br><span class="line">            <span class="keyword">delete</span> m_refCount;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// copy the data and reference pointer and increase the reference count</span></span><br><span class="line">        m_ptr = other.m_ptr;</span><br><span class="line">        m_refCount = other.m_refCount;</span><br><span class="line">        <span class="comment">// increase the reference count</span></span><br><span class="line">        (*m_refCount)++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">use_count</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> *m_refCount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    T* m_ptr;            <span class="comment">// points to the actual data</span></span><br><span class="line">    <span class="type">int</span>* m_refCount;     <span class="comment">// reference count</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p><code>std::shared_ptr</code>内置方法</p>
+<table>
+<thead>
+<tr>
+<th align="center">方法</th>
+<th align="center">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">make_shared<T>(args)</td>
+<td align="center">返回一个shared_ptr，指向一个动态分配的类型为T的对象，使用args初始化此对象。</td>
+</tr>
+<tr>
+<td align="center">shared_ptr<T>p(q)</td>
+<td align="center">p是q的拷贝，此操作递增q中的计数器。q中的指针必须能转换为T*。</td>
+</tr>
+<tr>
+<td align="center">shared_ptr<T>p &#x3D; q</td>
+<td align="center">p是q的拷贝，此操作递增q中的计数器。q中的指针必须能转换为T*。</td>
+</tr>
+<tr>
+<td align="center">p.unique()</td>
+<td align="center">如果p.use_count()为1，返回true，否则返回false。</td>
+</tr>
+<tr>
+<td align="center">p.use_count()</td>
+<td align="center">返回与p共享对象的智能指针数量。</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><code>std::shared_ptr</code>和<code>std::unique_ptr</code>共有操作</p>
+<table>
+<thead>
+<tr>
+<th align="center">方法</th>
+<th align="center">用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">p.get()</td>
+<td align="center">返回p中保存的指针，不会影响p的引用计数。</td>
+</tr>
+<tr>
+<td align="center">p.reset()</td>
+<td align="center">释放p指向的对象，将p置为空。</td>
+</tr>
+<tr>
+<td align="center">p.reset(q)</td>
+<td align="center">释放p指向的对象，令p指向q（指向一块动态分配的内存）。</td>
+</tr>
+<tr>
+<td align="center">p.reset(new T)</td>
+<td align="center">释放p指向的对象，令p指向一个新的对象。</td>
+</tr>
+<tr>
+<td align="center">p.swap(q)</td>
+<td align="center">交换p和q中的指针。</td>
+</tr>
+<tr>
+<td align="center">swap(p, q)</td>
+<td align="center">交换p和q中的指针。</td>
+</tr>
+<tr>
+<td align="center">p.operator*()</td>
+<td align="center">解引用p。</td>
+</tr>
+<tr>
+<td align="center">p.operator-&gt;()</td>
+<td align="center">成员访问运算符，等价于(*p).member。</td>
+</tr>
+<tr>
+<td align="center">p.operator bool()</td>
+<td align="center">检查p是否为空指针。</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h2 id="3-std-weak-ptr"><a href="#3-std-weak-ptr" class="headerlink" title="3. std::weak_ptr"></a>3. std::weak_ptr</h2>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/04/14/My-first-blog/" data-id="cm9gqeh0h0000ko8u4g99dxjo" data-title="cpp智能指针" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2025/04/14/My-first-blog/" data-id="cm9i7b0170000388u7uetf0ex" data-title="cpp智能指针" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -150,7 +259,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/04/13/hello-world/" data-id="cm9gqeh0p0003ko8u45629h7p" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2025/04/13/hello-world/" data-id="cm9i7b01b0003388u2p368bjl" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
