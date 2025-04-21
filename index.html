@@ -71,6 +71,71 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-PE-Learning" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/04/17/PE-Learning/" class="article-date">
+  <time class="dt-published" datetime="2025-04-17T13:21:57.000Z" itemprop="datePublished">2025-04-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/04/17/PE-Learning/">PE_Learning</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="提示技术"><a href="#提示技术" class="headerlink" title="提示技术"></a>提示技术</h1><h2 id="链式思考（CoT）提示"><a href="#链式思考（CoT）提示" class="headerlink" title="链式思考（CoT）提示"></a>链式思考（CoT）提示</h2><p><img src="/2025/04/17/PE-Learning/_next/static/media/cot.1933d9fe.png" alt="COT"></p>
+<p>也可以将 CoT与少样本结合来获得更好的效果。</p>
+<h2 id="零样本CoT提示"><a href="#零样本CoT提示" class="headerlink" title="零样本CoT提示"></a>零样本CoT提示</h2><p>涉及将“让我们逐步思考”添加到原始提示中。</p>
+<p><strong>原始问题：</strong></p>
+<p><em>提示：</em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我去市场买了10个苹果。我给了邻居2个苹果和修理工2个苹果。然后我去买了5个苹果并吃了1个。我还剩下多少苹果？</span><br></pre></td></tr></table></figure>
+
+<p><em>输出：</em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">11个苹果</span><br></pre></td></tr></table></figure>
+
+<p><strong>更改提示词后：</strong></p>
+<p><em>提示：</em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我去市场买了10个苹果。我给了邻居2个苹果和修理工2个苹果。然后我去买了5个苹果并吃了1个。我还剩下多少苹果？让我们逐步思考。</span><br></pre></td></tr></table></figure>
+
+<p><em>输出：</em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">首先，您从10个苹果开始。您给了邻居和修理工各2个苹果，所以您还剩下6个苹果。然后您买了5个苹果，所以现在您有11个苹果。最后，您吃了1个苹果，所以您还剩下10个苹果。</span><br></pre></td></tr></table></figure>
+
+<h2 id="自动思维链（Auto-CoT）"><a href="#自动思维链（Auto-CoT）" class="headerlink" title="自动思维链（Auto-CoT）"></a>自动思维链（Auto-CoT）</h2><p>Auto-CoT 主要由两个阶段组成：</p>
+<ul>
+<li>阶段1：<strong>问题聚类</strong>：将给定问题划分为几个聚类</li>
+<li>阶段2：<strong>演示抽样</strong>：从每组数组中选择一个具有代表性的问题，并使用带有简单启发式的 Zero-Shot-CoT 生成其推理链</li>
+</ul>
+<p>简单的启发式方法可以是问题的长度（例如，60 个 tokens）和理由的步骤数（例如，5 个推理步骤）。这鼓励模型使用简单而准确的演示。</p>
+<p><img src="/2025/04/17/PE-Learning/_next/static/media/auto-cot.642d9bad.png" alt="AUTOCOT"></p>
+<p>Auto-CoT代码：<a target="_blank" rel="noopener" href="https://github.com/amazon-science/auto-cot">Github (opens in a new tab)</a></p>
+<h2 id="a"><a href="#a" class="headerlink" title="a"></a>a</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2025/04/17/PE-Learning/" data-id="cm9qruhnd0000gw8u8cz1d6wp" data-title="PE_Learning" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RAG/" rel="tag">RAG</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-cpp_smart_ptr" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/04/14/cpp_smart_ptr/" class="article-date">
@@ -206,7 +271,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2025/04/14/cpp_smart_ptr/" data-id="cm9ldpx150000po8u69qwd2yo" data-title="cpp智能指针" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2025/04/14/cpp_smart_ptr/" data-id="cm9qruhng0001gw8u2ifr4wjs" data-title="cpp智能指针" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -233,7 +298,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/" rel="tag">cpp高级特性</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/RAG/" rel="tag">RAG</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/cpp%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/" rel="tag">cpp高级特性</a></li></ul>
     </div>
   </div>
 
@@ -243,7 +308,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/cpp%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/" style="font-size: 10px;">cpp高级特性</a>
+      <a href="/tags/RAG/" style="font-size: 10px;">RAG</a> <a href="/tags/cpp%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7/" style="font-size: 10px;">cpp高级特性</a>
     </div>
   </div>
 
@@ -263,6 +328,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2025/04/17/PE-Learning/">PE_Learning</a>
+          </li>
         
           <li>
             <a href="/2025/04/14/cpp_smart_ptr/">cpp智能指针</a>
